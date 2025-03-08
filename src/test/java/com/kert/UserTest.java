@@ -1,8 +1,6 @@
 package com.kert;
 
 import com.kert.config.SecurityConfig;
-import com.kert.config.SecurityUser;
-import com.kert.config.SecurityUserService;
 import com.kert.model.Admin;
 import com.kert.model.Password;
 import com.kert.model.User;

@@ -1,5 +1,6 @@
 package com.kert.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +21,11 @@ public class User {
     @Id
     @Column(unique = true, nullable = false)
     private Long studentId;
+
+    //update에 userdetail 객체가 user 쓰는데 문제의 소지 있음. 비번 변경은 거기서 할 생각이 없음. nullable false임
+    @JsonIgnore
+    @Column(nullable = false)
+    private String hash;
 
     private String name;
     private String email;

@@ -1,8 +1,9 @@
 package com.kert.config;
 
+import com.kert.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -13,15 +14,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Set;
-import org.springframework.security.core.GrantedAuthority;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final SecurityUserService securityUserService;
+    private final UserDetailsServiceImpl userDetailsService; // 수정: 새로 만든 서비스 사용
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -30,18 +29,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token != null && jwtTokenProvider.validateToken(token)) {
             Long userId = jwtTokenProvider.getUserIdFromJWT(token);
 
-            try {
-                SecurityUser userDetails = securityUserService.loadUserById(userId);
-                Set<GrantedAuthority> authorities = jwtTokenProvider.getAuthoritiesFromJWT(token);
+            if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(userId.toString());
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, authorities
+                        userDetails, null, userDetails.getAuthorities()
                 );
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-            } catch (UsernameNotFoundException e) {
-                throw new RuntimeException("User not found");
             }
         }
 
