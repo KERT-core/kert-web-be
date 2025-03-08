@@ -129,7 +129,7 @@ public class UserTest {
     @DisplayName("get all users with admin")
     public void getAllUsersWithAdmin() throws Exception {
         when(userService.getAllUsers()).thenReturn(List.of(testUser));
-        when(securityUserService.loadUserById(testAdmin.getStudentId())).thenReturn(new ecurityUser(testAdmin, new Admin(), new Password(), Set.of()));
+        when(securityUserService.loadUserById(testAdmin.getStudentId())).thenReturn(new SecurityUser(testAdmin, new Admin(), new Password(), Set.of()));
         when(adminService.getAdminByStudentId(testAdmin.getStudentId())).thenReturn(new Admin());
 
         mockMvc.perform(get("/users").header("Authorization", "Bearer " + adminJwtToken)).andExpect(status().isOk())
